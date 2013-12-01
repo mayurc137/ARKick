@@ -1,0 +1,54 @@
+<!DOCTYPE html >
+<html><head>
+    
+    <title>ARKicK</title>
+    
+    <!-- Include the ARchitect library -->
+    <script src="architect://architect.js"></script>
+  
+    <link rel="stylesheet" href="lib/BlackBerry-JQM-all.css" />
+    <script src="lib/BlackBerry-JQM-all.js"></script>
+    <script type="text/javascript" src="lib/app.js"></script>
+       <script type="application/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+      
+        
+</head>
+    
+    <body>
+        <div id="index" data-role="page" data-theme="a">
+          <div data-role="header" data-theme="a">
+        <a onClick="backclicked()" data-role="button">Back</a>
+        <h1>Connect</h1>
+
+      </div><!-- /header -->
+        <div data-role="content">
+          <label for="flip-off">Select slider:</label>
+        <select name="slider" id="flip-off" data-role="slider">
+          <option value="off">Off</option>
+          <option value="on">On</option>
+        </select> 
+        <label for="flip-on">Select slider:</label>
+        <select name="slider" id="flip-on" data-role="slider">
+          <option value="on">On</option>
+          <option value="off">Off</option>
+        </select> 
+        <h1> Disabled Toggle </h1>
+        <label for="flip-disabled">Select slider:</label>
+        <select name="slider" class="ui-disabled" id="flip-disabled" data-role="slider">
+          <option value="off">Off</option>
+          <option value="on">On</option>
+        </select> 
+
+       </div>      
+        </div>
+               
+        <script type="text/javascript">
+          function backclicked(){
+            location.href="index.html";
+          }
+        </script>
+        
+        
+    </body>
+        
+    </html>

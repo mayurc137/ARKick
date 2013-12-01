@@ -1,0 +1,122 @@
+
+
+<!DOCTYPE HTML>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="lib/BlackBerry-JQM-all-1.0.0.css" />
+    <script src="lib/BlackBerry-JQM-all-1.0.0.js"></script>
+    <script type="text/javascript" src="lib/app.js"></script>
+     <script src="js/ade.js"></script>
+    <script src="architect://architect.js"></script>
+  </head>
+  <body>
+    <div data-role="page" data-theme="a" style="height:100%;">
+      <div data-role="header" data-position="fixed">
+         <a onClick="backclicked()" data-role="button">Done</a>
+        <h1>Settings</h1>
+      </div><!-- /header -->
+      <div data-role="content" style="height:1280px;" > 
+          <label for="basic">Distance Metrics</label>
+        <fieldset data-role="controlgroup">
+          <input type="radio" name="radio-choice-1" id="radio-choice-1-1" value="choice-1" onclick="milesclicked();" data-iconpos="right"/>
+          <label for="radio-choice-1-1">Miles</label>
+
+          <input type="radio" name="radio-choice-1" id="radio-choice-1-2" value="choice-2" onclick="kmclicked();" data-iconpos="right" />
+          <label for="radio-choice-1-2">Kilometers</label>
+        </fieldset>
+      <form>
+        <label for="basic">Default Radius for Browser Mode</label>
+        <input type="text" name="text-input" id="browserdefault" placeholder=""/>
+        <label for="basic">Default Radius for SideKick Mode</label>
+        <input type="text" name="text-input" id="sidekickdefault" placeholder=""/>
+        
+        
+        
+      </form>
+      </div><!-- /content -->
+    <div data-role="footer" data-position="fixed">
+    </div><!-- /header -->
+    </div><!-- /page -->
+    <script>
+
+
+      $("#browserdefault").attr('placeholder',localStorage.defaultbrowser);
+      $("#sidekickdefault").attr('placeholder',localStorage.defaultsidekick);
+
+    AR.context.destroyAll();
+    if(localStorage.units=="miles"){
+      document.getElementById("radio-choice-1-1").checked=true;
+        var binmiles = parseInt(localStorage.defaultbrowser);
+        var binkm = binmiles *1.609;
+        binkm = Math.floor(Math.round(binkm*100)/100);
+        var sinmiles = parseInt(localStorage.defaultsidekick);
+        var sinkm = sinmiles *1.609;
+        sinkm = Math.floor(Math.round(sinkm*100)/100);
+
+        
+
+    }else{
+      document.getElementById("radio-choice-1-2").checked=true;
+       var binkm = parseInt(localStorage.defaultbrowser);
+        var binmiles= binkm /1.609;
+        binmiles = Math.floor(Math.round(binmiles*100)/100);
+        var sinkm = parseInt(localStorage.defaultsidekick);
+        var sinmiles= sinkm /1.609;
+        sinmiles = Math.floor(Math.round(sinmiles*100)/100);
+    }
+    function milesclicked(){
+
+       
+        $("#browserdefault").attr('placeholder',binmiles);
+       
+        $("#sidekickdefault").attr('placeholder',sinmiles);
+        
+      localStorage.units = "miles";
+
+    }
+    function kmclicked(){
+      
+      $("#browserdefault").attr('placeholder',binkm);
+       
+        $("#sidekickdefault").attr('placeholder',sinkm);
+      localStorage.units = "km";
+
+    }
+    function backclicked(){
+      if(localStorage.units == "km"){
+        bval = $("#browserdefault").val();
+        if(bval){
+            localStorage.defaultbrowser = bval;
+        }else{
+            localStorage.defaultbrowser = binkm;
+        }
+        sval = $("#sidekickdefault").val();
+        if(sval){
+            localStorage.defaultsidekick = sval;
+        }else{
+            localStorage.defaultsidekick = sinkm;
+        }
+
+      }else if(localStorage.units =="miles"){
+         bval = $("#browserdefault").val();
+        if(bval){
+            localStorage.defaultbrowser = bval;
+        }else{
+            localStorage.defaultbrowser = binmiles;
+        }
+        sval = $("#sidekickdefault").val();
+        if(sval){
+            localStorage.defaultsidekick = sval;
+        }else{
+            localStorage.defaultsidekick = sinmiles;
+        }
+
+      }
+      location.href="index.html";
+    }
+  
+    </script>
+  </body>
+</html>

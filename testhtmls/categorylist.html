@@ -1,0 +1,66 @@
+<html>
+<head>
+	<script type="text/javascript" src = "js/jquery.js"></script>
+	<script type="text/javascript" src = "js/category.js"></script>
+</head>
+<style>
+#newdiv{
+	position: relative;
+	left: 100px;
+	top:10px;
+	
+	border: 5px solid red;
+	display: inline-block;
+}
+#subdiv{
+	position: relative;
+	left: 10px;
+	top:20px;
+	
+	border: 2px solid green;	
+	display: inline-block;
+}
+
+</style>
+<body>
+<div id="list">
+</div>
+
+	<script>
+	//alert(category.response.categories.length);
+	var nocat=0; 
+	var nosubcat=0; 
+	var nosubsubcat=0;
+	var total=0
+	for(j=0; j<category.response.categories.length;j++){
+		nocat++;
+		$('#list').append(j+'.'+category.response.categories[j].name+'('+category.response.categories[j].id+')');
+		$('#list').append('<br><br>');
+		for(i=0; i<category.response.categories[j].categories.length;i++){
+			nosubcat++;
+			total++;
+			$('#list').append('----'+j+'.'+i+'  '+category.response.categories[j].categories[i].name+'('+category.response.categories[j].categories[i].id+')');
+			$('#list').append('<br>');
+			if(category.response.categories[j].categories[i].categories.length!=0){	
+				total--;
+			}
+			for(k=0; k<category.response.categories[j].categories[i].categories.length;k++){
+				nosubsubcat ++;
+				total++;
+				$('#list').append('----------'+j+'.'+i+'.'+k+'  '+category.response.categories[j].categories[i].categories[k].name+'('+category.response.categories[j].categories[i].categories[k].id+')');
+				$('#list').append('<br>');
+			}			
+		}
+		$('#list').append('<br>');
+
+	}
+	/*alert(nocat);
+	alert(nosubcat);
+	alert(nosubsubcat);*/
+	alert("total categories by name="+(nocat+nosubcat+nosubsubcat));
+	alert("total categories = "+(total-nocat));
+
+	</script>
+</body>
+
+</hmtl>

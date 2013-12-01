@@ -1,0 +1,73 @@
+
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+		<meta charset="utf-8">
+        
+		
+		<script src="architect://architect.js"></script>
+		<link rel="stylesheet" href="lib/BlackBerry-JQM-all.css" />
+		<script src="lib/BlackBerry-JQM-all.js"></script>
+		<script type="text/javascript" src="lib/app.js"></script>
+		<script type="text/javascript" src="js/category.js"></script>
+       
+        <style>
+         	.thumbnail{
+         		position:relative;
+ 				width:80px;
+ 				left:10px;
+ 				top:15px;
+         	}
+         	
+         	
+         </style>      
+	</head>
+	<body style="overflow:scroll;">
+		<div id="page1" data-role="page" data-theme="a">
+			<!-- This is how you set up your tab overflow menu (left side panel) -->
+			
+
+			<div data-role="header" data-theme="a">
+				<a onClick="backclicked()" data-role="button">Back</a>
+				<h1>Sub Sub Category</h1>
+
+			</div><!-- /header -->
+			<div data-role="content">
+				<div id="wordlist">
+                <ul data-filter="true" data-role="listview" data-divider-theme="a" id="wordlistul" >
+    		
+				</ul>
+			</div>
+				<!-- Put your page content here -->
+			</div><!-- /content -->
+			
+		</div><!-- /page -->
+		
+		<script>
+		AR.context.destroyAll();
+		function backclicked(){
+			location.href="selsubcat.html";
+		}
+		
+       			var selcat = localStorage.selcat;
+				var selsubcat = localStorage.selsubcat;		 		
+				for(var i=0; i<category.response.categories[selcat].categories[selsubcat].categories.length;i++){
+	               var name = category.response.categories[selcat].categories[selsubcat].categories[i].name;
+	              $("#wordlist ul").append('<li><a><img src="img/category/'+selcat+'.'+selsubcat+'.'+i+'.png" alt="list thumbnail" class="thumbnail">'+name+'</a></li>');
+			      
+   				}
+		
+				
+   
+        $("#wordlist li").click(function () {
+          // this is the dom element clicked
+	        index = $("#wordlist li").index(this);
+	        localStorage.selsubsubcat = index;
+	       	location.href="browser.html";	      
+        });
+
+       
+        </script>
+	</body>
+</html>

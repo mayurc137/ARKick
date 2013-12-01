@@ -1,0 +1,1018 @@
+<!DOCTYPE html >
+<html><head>
+    
+    <title>ARKicK</title>
+    
+   
+    <!-- Include the ARchitect library -->
+    <script src="architect://architect.js"></script>
+    <script src="js/ade.js"></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/category.js"></script>
+    
+    <style>
+        #editbar{
+            visibility: hidden;
+        }
+        #radiusbar{
+            visibility: hidden;
+        }    
+        #favbutton{
+            position: absolute;
+            right:25px;
+            bottom:10px;
+             width:100px;
+        }
+        #deletebutton{
+            position: absolute;
+            right:175px;
+            bottom:10px;
+            width:100px;
+        }
+        #infobutton{
+            position: absolute;
+            right:325px;
+            bottom:10px;
+            width:100px;
+        }
+        #trafficicon{
+            position: absolute;
+            left:25px;
+            bottom:10px;
+            width:100px;
+        }
+        #timetext{
+            position: absolute;
+            left:150px;
+            bottom:-20px;
+            width:200px;
+            color:rgb(0,250,250);
+            font-size: 50px;
+
+        }
+        #radiusicon{
+            position: absolute;
+            left:25px;
+            bottom:10px;
+            width:100px;
+        }
+        #refreshbutton{
+            position: absolute;
+            right:25px;
+            bottom:10px;
+             width:100px;
+        }
+        #zoomout{
+            position: absolute;
+            right:175px;
+            bottom:10px;
+            width:100px;
+        }
+        #zoomin{
+            position: absolute;
+            right:325px;
+            bottom:10px;
+            width:100px;
+        }
+       
+        #radiustext{
+            position: absolute;
+            left:150px;
+            bottom:-20px;
+            width:200px;
+            color:rgb(0,250,250);
+            font-size: 50px;
+
+        }
+        #locationfind{
+            position: absolute;
+            width:400px;
+            height:200px;
+            top:540px;
+            left:350px;
+            text-align: center;
+            color:rgb(0,250,250);
+            font-size: 60px;
+
+        }
+        #notificationcenter{
+            position:absolute;
+            top:1000px; 
+            left:0px;
+            height:150px; 
+            width:100%; 
+            background:rgba(0,0,0,0.5);
+
+        }
+        #loadinggif{
+            position: absolute;
+            left:20px;
+            bottom:20px;
+            width:120px;
+        }
+        #notificationtext{
+            position: absolute;
+            left:150px;
+            top:-10px;
+            width:600px;
+            color:rgb(0,250,250);
+            font-size: 50px;
+            
+
+        }
+        #progressbar{
+            position: absolute;
+            left:0px;
+            bottom:0px;
+            height: 20px;
+            width:80px;
+            background-color: rgb(25,177,226);
+        }
+    </style>
+        
+</head>
+    
+    <body>
+               
+        <!-- Status element at the top of the HUD -->
+       
+        <div id="editbar" style="position:absolute;top:1030px; left:0px;height:120px; width:100%; background:rgba(0,0,0,0.5);">
+        <img id="trafficicon" src="img/trafficicon.png"></img>
+        <p id="timetext">Loading...</p>
+        <img id="infobutton" onClick="infobuttonclick()" src="img/infobutton.png"></img>
+        <img id="deletebutton" onClick="deletebuttonclick()" src="img/deletebutton.png"></img>
+        <img id="favbutton" onClick="favbuttonclick()" src="img/fav1.png"></img>
+        </div>
+        <div id="radiusbar" style="position:absolute;top:1030px; left:0px;height:120px; width:100%; background:rgba(0,0,0,0.5);">
+        <img id="radiusicon" src="img/radiusicon.png"></img>
+        <p id="radiustext"></p>
+        <img id="zoomin" onClick="zoominclicked()" src="img/zoomin.png"></img>
+        <img id="zoomout" onClick="zoomoutclicked()" src="img/zoomout.png"></img>
+        <img id="refreshbutton" onClick="refreshclicked()"src="img/refreshbutton.png"></img>
+
+        </div>
+              
+        <div id="notificationcenter">
+            <!--img id="loadinggif" src="img/loading.gif"></img-->
+            <p id="notificationtext">Finding your Location</p>
+            <div id="progressbar"></div>
+        </div>
+        <script>
+       
+
+            AR.context.destroyAll();
+            var n = 1;
+            var duplicateno = 0;
+            var placeloaded = 10;
+            var counter = 0;
+            var created = 0;
+            var unique_random_numbers = [];
+            var everythingloaded = 0;
+            //Creating Radar
+            localStorage.lat = 1;
+            localStorage.lng = 1;
+            //Radar Created
+            var t = setInterval(function () {
+                if (localStorage.lat == 1) {
+                    document.getElementById("notificationtext").innerHTML="Finding your Location...";
+                    if (counter > 30) {
+                        document.getElementById("notificationtext").innerHTML="Cannot Find Your Location";
+                    }
+                } else {
+
+                    t = clearInterval(t);
+                    if (created == 0) {
+                        document.getElementById("notificationtext").innerHTML="Loading Places...";
+                        createFoursquare();
+                        createSidekick();
+                    }
+                }
+                counter++;
+
+            }, 1000);
+            //user current locations
+
+            function refreshclicked() {
+                destroyall();
+                jsonObject.length = 0;
+                deletedObjects.length = 0;
+                deletedindex = 0;
+                createFoursquare();
+            }
+
+            function zoominclicked() {
+                radius += 500;
+                var radiusdis = radius / 1000;
+                if(localStorage.units=="km")
+                    radiusdis = radiusdis + " km";
+                else
+                    radiusdis = radiusdis + " mi";
+                document.getElementById("radiustext").innerHTML = radiusdis;
+            }
+
+            function zoomoutclicked() {
+                if (radius > 1000)
+                    radius -= 500;
+                var radiusdis = radius / 1000;
+               if(localStorage.units=="km")
+                    radiusdis = radiusdis + " km";
+                else
+                    radiusdis = radiusdis + " mi";
+                document.getElementById("radiustext").innerHTML = radiusdis;
+            }
+
+            function infobuttonclick() {
+                if (selectedObject) {
+                    localStorage.selectedinfoid = selectedObject.id;
+                    window.location = "infos.html"
+                }
+            }
+
+            function deletebuttonclick() {
+                if (selectedObject) {
+                    var index = selectedObject.index;
+                    destroyobject(index);
+                    document.getElementById("trafficicon").src = "img/trafficicon.png";
+                    document.getElementById("timetext").innerHTML = "Loading..";
+                    document.getElementById("editbar").style.visibility = "hidden";
+
+                }
+            }
+
+            function favbuttonclick() {
+                if (selectedObject) {
+                    var index = selectedObject.index;
+                    var fav = selectedObject.fav;
+                    if (fav == 0) {
+                        jsonObject[index].fav = 1;
+
+                        document.getElementById("favbutton").src = "img/fav2.png";
+                    } else if (fav == 1) {
+                        jsonObject[index].fav = 0;
+                        document.getElementById("favbutton").src = "img/fav1.png";
+                    }
+
+
+                }
+            }
+
+            function destroyall() {
+                for (i = 0; i < jsonObject.length; i++) {
+                    destroyobject(i);
+                }
+            }
+            var currLat = parseFloat(localStorage.lat);
+            var currLon = parseFloat(localStorage.lng);
+            var currAlt = 1;
+            var currAcc = 1;
+            var startflag = 1;
+            var selcat = localStorage.selcat;
+            var selsubcat = localStorage.selsubcat;
+            var selsubsubcat = localStorage.selsubsubcat;
+            var radius = localStorage.defaultsidekick*1000;
+            var timereq = 0;
+            var radiusscreen = 0;
+            var deletedObjects = new Array();
+            /*if(localStorage.units == "km"){
+                radius = localStorage.defaultsidekick*1000;
+            }else{
+                radius = localStorage.defaultsidekick*1.690*1000;
+                radius = Math.floor(radius);
+                radius = radius/1000;
+                radius = Math.floor(radius);
+                radius = radius *1000;
+                //alert(radius);
+            }*/
+            //console.log("radius:"+radius);
+             if(localStorage.units == "km")
+                document.getElementById("radiustext").innerHTML=Math.floor(radius/1000) +' km';
+             else
+                document.getElementById("radiustext").innerHTML=Math.floor(radius/1000) +' mi';
+
+            deletedindex = 0;
+            // Create new images, which will be loaded right away
+            var markerimg = new AR.ImageResource("img/marker.png", {
+                onError: errorLoadingImage
+            });
+            radarImage = new AR.ImageResource("img/radar.png", {
+                onError: errorLoadingImage
+            });
+            northIndicator = new AR.ImageResource("img/north.png", {
+                onError: errorLoadingImage
+            });
+
+            var clientId = '3JLCFT4CFRGATLFWPOTOCKA41HPLBZWCNBZF21MP5Q4E3AY2';
+            var clientSec = 'HT50OBCWT5D2HURLEFR0EROAX0DCCICFPJ0FVB4H0I5RPXHT';
+
+
+            var selectedObject = null;
+            var jsonObject = new Array();
+
+
+
+            AR.context.onLocationChanged = function (lat, lon, alt, acc) {
+                currLat = lat;
+                currLon = lon;
+                currAlt = alt;
+                currAcc = acc;
+
+                localStorage.lat = currLat;
+                localStorage.lng = currLon;
+            }
+            AR.radar.background = radarImage;
+                    AR.radar.positionX = 0.025;
+                    AR.radar.positionY = 0.025;
+                    AR.radar.width = 0.4;
+
+                    AR.radar.centerX = 0.5;
+                    AR.radar.centerY = 0.5;
+                    AR.radar.radius = 0.3;
+
+                    AR.radar.northIndicator.image = northIndicator;
+                    AR.radar.northIndicator.radius = 0.0;
+                    AR.radar.enabled = true;
+                    var radarCircle = new AR.Circle(0.05, {
+                        style: {
+                            fillColor: '#83ff7b'
+                        }
+                    });
+            //function that gets called when the displayed poi bubble is clicked
+            //sends the id of the selected poi to the native app
+            //variable declaration for combined createfoursqare and createsidekick
+            var jk = 0;
+
+            function generateOnPoiBubbleClickFunc(id) {
+                return function () {
+                    //document.location = "architectsdk://opendetailpage?id="+id;       
+                }
+            }
+
+
+            // creates a property animation
+
+            function createOnClickAnimation(imageDrawable) {
+                var anim = new AR.PropertyAnimation(imageDrawable, 'scaling', 1.0, 1.1, 750, new AR.EasingCurve(AR.CONST.EASING_CURVE_TYPE.EASE_OUT_ELASTIC, {
+                    amplitude: 2.0
+                }));
+                return anim;
+            }
+
+
+            // creates a function for assigning to label's and imageDrawable's onClickTrigger
+
+            function createClickTrigger(id) {
+
+                return function () {
+                    document.getElementById("radiusbar").style.visibility = "hidden";
+                    document.getElementById("editbar").style.visibility = "visible";
+                    document.getElementById("trafficicon").src = 'img/trafficicon.png';
+                    document.getElementById("timetext").src = 'Loading..';
+                    if (selectedObject != null) {
+                        // reset the property animation
+                        selectedObject.animation.stop();
+                        selectedObject.arLabel.style.textColor = '#FFFFFF';
+
+                        selectedObject.img.scaling = 1.0;
+                        selectedObject.poiObj.renderingOrder = 0;
+                    }
+
+                    // set a new select status for the current selected poi
+                    selectedObject = jsonObject[id];
+                    selectedObject.arLabel.style.textColor = '#FFFF00';
+                    selectedObject.poiObj.renderingOrder = 1;
+
+                    // start the assigned animation
+                    selectedObject.animation.start();
+
+                    document.getElementById("notificationcenter").style.visibility = "hidden";
+                    var directionurl = 'https://maps.googleapis.com/maps/api/directions/json?origin=' + currLat + ',' + currLon + '&destination=' + selectedObject.lat + ',' + selectedObject.lon + '&sensor=false';
+
+                    jQuery.get(directionurl, function (r) {
+
+                        document.getElementById("timetext").innerHTML = r.routes[0].legs[0].duration.text;
+
+                    });
+
+                    if (selectedObject.fav == 1) {
+                        document.getElementById("favbutton").src = "img/fav2.png";
+                    } else {
+                        document.getElementById("favbutton").src = "img/fav1.png";
+                    }
+
+                    document.getElementById("trafficicon").src = 'img/trafficicon.png';
+
+
+
+                    return true;
+                }
+            }
+
+
+            function createFoursquare() {
+
+                    created = 1;
+                    //document.getElementById("notificationtext").innerHTML = "Loading Places...";
+                  
+                    /////Parsing begins from here
+                    jk=0;
+
+
+                    var url = 'https://api.foursquare.com/v2/venues/explore?limit=18&ll=' + currLat + ',' + currLon + '&radius=' + radius + '&intent=browse&client_id=' + clientId + '&client_secret=' + clientSec + '&v=21030621';
+
+                    console.log(url); 
+
+                    jQuery.get(url, function (r) {
+
+                        for (var i = 0; i < r.response.groups[0].items.length; i++) {
+
+                            var imgcat = 0;
+                            var imgsubcat = 0;
+                            var imgsubsubcat = -1;
+                            //console.log(r.response.groups[0].items[i].venue.categories[0].id);
+                            for (j = 0; j < category.response.categories.length; j++) {
+
+                                for (m = 0; m < category.response.categories[j].categories.length; m++) {
+
+                                    if (category.response.categories[j].categories[m].id == r.response.groups[0].items[i].venue.categories[0].id) {
+                                        imgcat = j;
+                                        imgsubcat = i;
+                                        imgsubsubcat = -1;
+                                        //console.log(imgcat+','+imgsubcat+','+imgsubsubcat);
+                                        break;
+                                    }
+                                    for (k = 0; k < category.response.categories[j].categories[m].categories.length; k++) {
+                                        if (category.response.categories[j].categories[m].categories[k].id == r.response.groups[0].items[i].venue.categories[0].id) {
+                                            imgcat = j;
+                                            imgsubcat = m;
+                                            imgsubsubcat = k;
+                                            //console.log(imgcat+','+imgsubcat+','+imgsubsubcat);
+                                            break;
+                                        }
+
+                                    }
+                                }
+
+                            }
+
+                            if (imgsubsubcat == -1) {
+                                var imgicon = 'img/category/' + imgcat + '.' + imgsubcat + '.png';
+                            } else {
+                                var imgicon = 'img/category/' + imgcat + '.' + imgsubcat + '.' + imgsubsubcat + '.png';
+                            }
+                            //console.log(imgicon);
+
+                            var obj = new Object();
+                            var poidrawables = new Array();
+                            var name = r.response.groups[0].items[i].venue.name;
+                            //console.log(name);
+                            if (name.length < 18) {
+                                for (l = name.length; l < 18; l++) {
+                                    name = name + ' ';
+                                }
+                            }
+                            if (name.length > 18) {
+                                var cropname = name.substring(0, 18) + "..";
+                            } else {
+                                var cropname = name;
+                            }
+                            var poiImage;
+                            poiImage = markerimg;
+                            ///Changing Y Offsets randomly
+                            var rand = Math.floor(Math.random() * 5) + 1;
+
+                            var yoff;
+                            if (rand == 0) {
+                                yoff = -2;
+                            } else if (rand == 1) {
+                                yoff = 2;
+                            } else if (rand == 2) {
+                                yoff = 3;
+                            } else if (rand == 3) {
+                                yoff = -3
+                            } else {
+                                yoff = 0;
+                            }
+
+                            ///
+
+                            var img = new AR.ImageDrawable(poiImage, 3.0, {
+                                zOrder: 1,
+                                offsetX: 0.8,
+                                offsetY: yoff,
+                                triggers: {
+                                    onClick: createClickTrigger(jk)
+                                }
+                            });
+
+
+                            var label = new AR.Label(cropname, 0.65, {
+                                zOrder: 2,
+                                offsetY: 0.6 + yoff,
+                                offsetX: -3.5,
+                                triggers: {
+                                    onClick: createClickTrigger(jk)
+                                },
+                                horizontalAnchor: AR.CONST.HORIZONTAL_ANCHOR.LEFT,
+                                style: {
+                                    fontStyle: AR.CONST.FONT_STYLE.BOLD,
+                                    textColor: '#FFFFFF',
+                                    backgroundColor: '#FFFFFF00'
+                                }
+                            });
+
+                            obj.arLabel = label;
+                            var lat = r.response.groups[0].items[i].venue.location.lat;
+                            var lon = r.response.groups[0].items[i].venue.location.lng;
+                            var geoLoc = new AR.GeoLocation(lat, lon);
+                            var currentloc = new AR.GeoLocation(currLat, currLon);
+                            var distance = currentloc.distanceTo(geoLoc);
+                            obj.distance = distance;
+                            if(localStorage.units =="km"){
+                                if (distance > 1000) {
+                                    distance = distance / 1000;
+                                    distance = Math.round(distance, 3);
+                                    var distancetxt = distance + 'km';
+                                } else {
+                                    distance = Math.round(distance, 1);
+                                    var distancetxt = distance + 'm';
+
+                                }
+                            }else{
+                                distance = distance / 1609;
+                                distance = Math.round(distance*100)/100;
+                                distancetxt = distance + 'miles';
+                            }
+
+                            var distancelabel = new AR.Label(distancetxt, 0.65, {
+                                zOrder: 2,
+                                offsetY: -0.4 + yoff,
+                                offsetX: -3.5,
+                                horizontalAnchor: AR.CONST.HORIZONTAL_ANCHOR.LEFT,
+                                style: {
+                                    fontStyle: AR.CONST.FONT_STYLE.BOLD,
+                                    textColor: '#00FFFF',
+                                    backgroundColor: '#FFFFFF00'
+                                }
+                            });
+                            obj.distancelabel = distancelabel;
+
+                            var icon = new AR.ImageResource(imgicon, {
+                                onError: errorLoadingImage
+                            });
+
+                            var iconimg = new AR.ImageDrawable(icon, 1.5, {
+                                zOrder: 4,
+                                offsetX: 5.0,
+                                offsetY: 0.2 + yoff,
+                                triggers: {
+                                    onClick: createClickTrigger(jk)
+                                },
+                                horizontalAnchor: AR.CONST.HORIZONTAL_ANCHOR.RIGHT
+
+                            });
+
+
+
+                            obj.animation = createOnClickAnimation(img);
+                            obj.img = img;
+                            obj.iconimg = iconimg;
+                            poidrawables.push(label);
+                            poidrawables.push(img);
+                            poidrawables.push(distancelabel);
+                            poidrawables.push(iconimg);
+
+                            obj.poiObj = new AR.GeoObject(geoLoc, {
+                                drawables: {
+                                    cam: poidrawables,
+                                    radar: radarCircle
+                                }
+                            });
+
+                            obj.name = r.response.groups[0].items[i].venue.name;
+                            obj.id = r.response.groups[0].items[i].venue.id;
+                            obj.lat = lat;
+                            obj.lon = lon;
+
+                            obj.index = i;
+                            obj.fav = 0;
+                            var rand = Math.random() * 3 + 1;
+                            rand = Math.floor(rand) - 1;
+                            obj.traffic = rand;
+
+                            jsonObject[jk] = obj;
+                            jk++;
+                            placeloaded++;
+                            var percent = (placeloaded / 25);
+                            var width = percent * 720;
+                            $("#progressbar").css({
+                                "width": width
+                            });
+                            //console.log(jsonObject);
+                            //console.log(jk);
+                            //console.log("From FS");
+                            //console.log(jsonObject[jk - 1].id);
+
+
+                        }
+                        //console.log(jsonObject);
+                        //duplicateno = jk - 1;
+                        //console.log(duplicateno);
+
+
+                    }, "jsonp");
+
+                    //contextual engine CONTEXTUAL ENGINE
+                    //console.log(localStorage.temp);
+                    //console.log(localStorage.weathercode);
+                    //console.log(localStorage.hrs);
+
+             
+
+            }
+             function createSidekick(){
+                   
+                    var d = new Date();
+                    var hrs = d.getHours();
+                    var day = d.getDay();
+                    var id = '';
+                    //alert(day);
+                    if (day == 0 || day == 6) {
+                        if (hrs > 0 && hrs < 3) {
+
+                            id = '4bf58dd8d48988d17c941735,4bf58dd8d48988d16e941735,4d4b7105d754a06376d81259,4d954b0ea243a5684a65b473,4bf58dd8d48988d10f951735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d130951735';
+
+                        } else if (hrs > 3 && hrs < 6) {
+                            id = '4bf58dd8d48988d16e941735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d130951735';
+
+                        } else if (hrs > 6 && hrs < 9) {
+
+                            id = '4bf58dd8d48988d179941735,4bf58dd8d48988d16a941735,4bf58dd8d48988d143941735,4bf58dd8d48988d1e0931735,4bf58dd8d48988d1dc931735,4bf58dd8d48988d16e941735,4f4528bc4b90abdf24c9de85,4bf58dd8d48988d165941735,4bf58dd8d48988d131941735,4bf58dd8d48988d175941735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fc941735,4f04ad622fb6e1c99f3db0b9,4bf58dd8d48988d1fe931735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d130951735,4bf58dd8d48988d129951735';
+
+                        } else if (hrs > 9 && hrs < 12) {
+                            id = '4d4b7105d754a06372d81259,4bf58dd8d48988d179941735,4bf58dd8d48988d16a941735,4bf58dd8d48988d143941735,4bf58dd8d48988d1e0931735,4bf58dd8d48988d1dc931735,4bf58dd8d48988d16e941735,4bf58dd8d48988d175941735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fc941735,4f04ad622fb6e1c99f3db0b9,4bf58dd8d48988d1fe931735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d129951735';
+                        } else if (hrs > 12 && hrs < 17) {
+                            id = '4d4b7105d754a06372d81259,4bf58dd8d48988d16e941735,4d954b0ea243a5684a65b473,4bf58dd8d48988d10f951735,4bf58dd8d48988d1f0941735';
+                        } else if (hrs > 17 && hrs < 22) {
+                            id = '4bf58dd8d48988d17c941735,4bf58dd8d48988d179941735,4bf58dd8d48988d1e0931735,4bf58dd8d48988d16e941735,50327c8591d4c4b30a586d5d,4bf58dd8d48988d1bc941735,4bf58dd8d48988d1d0941735,4bf58dd8d48988d12f941735,4bf58dd8d48988d1f9941735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d114951735,4bf58dd8d48988d1fc941735,4bf58dd8d48988d1fd941735,4bf58dd8d48988d1fe931735,4bf58dd8d48988d129951735';
+                        } else if (hrs > 22 && hrs < 24) {
+                            id = '4bf58dd8d48988d17c941735,4bf58dd8d48988d16e941735,4d4b7105d754a06376d81259,4d954b0ea243a5684a65b473,4bf58dd8d48988d10f951735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d130951735';
+                        } else if (hrs > 21 && hrs < 24) {
+                            id = '';
+                        }
+
+
+                    } else {
+                        if (hrs > 6 && hrs < 12) {
+
+                            id = '4bf58dd8d48988d179941735,4bf58dd8d48988d16a941735,4bf58dd8d48988d143941735,4bf58dd8d48988d1e0931735,4bf58dd8d48988d1dc931735,4bf58dd8d48988d16e941735,4f4528bc4b90abdf24c9de85,4bf58dd8d48988d1e2941735,4bf58dd8d48988d165941735,4bf58dd8d48988d131941735,4f04ae1f2fb6e1c99f3db0ba,4bf58dd8d48988d175941735,4bf58dd8d48988d1f0941735,4f04ad622fb6e1c99f3db0b9,4bf58dd8d48988d1ed941735,4d1cf8421a97d635ce361c31,4bf58dd8d48988d1fe931735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d129951735';
+
+                        } else if (hrs > 12 && hrs < 16) {
+
+                            id = '4bf58dd8d48988d16e941735,50327c8591d4c4b30a586d5d,4f04ae1f2fb6e1c99f3db0ba,4bf58dd8d48988d18d941735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fd941735,4bf58dd8d48988d1ed941735,4d1cf8421a97d635ce361c31,4bf58dd8d48988d1fa931735';
+
+                        } else if (hrs > 16 && hrs < 19) {
+                            id = '4fceea171983d5d06c3e9823,4bf58dd8d48988d179941735,4bf58dd8d48988d1e0931735,4bf58dd8d48988d16e941735,50327c8591d4c4b30a586d5d,4bf58dd8d48988d1e2941735,4bf58dd8d48988d165941735,4bf58dd8d48988d117951735,4bf58dd8d48988d103951735,4bf58dd8d48988d18d941735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fd941735,4bf58dd8d48988d1ed941735,4d1cf8421a97d635ce361c31,4bf58dd8d48988d1fe931735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d129951735';
+                        } else if (hrs > 19 && hrs < 22) {
+                            id = '4bf58dd8d48988d16e941735,50327c8591d4c4b30a586d5d,4bf58dd8d48988d1bc941735,4bf58dd8d48988d1d0941735,4d4b7105d754a06376d81259,4f4528bc4b90abdf24c9de85,4bf58dd8d48988d165941735,4bf58dd8d48988d103951735,4bf58dd8d48988d18d941735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fd941735,4bf58dd8d48988d1ed941735,4d1cf8421a97d635ce361c31,4bf58dd8d48988d1fa931735';
+                        } else if (hrs > 22 && hrs < 24) {
+                            id = '4bf58dd8d48988d16e941735,4bf58dd8d48988d1bc941735,4bf58dd8d48988d1d0941735,4d4b7105d754a06376d81259,4d954b0ea243a5684a65b473,4bf58dd8d48988d10f951735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d130951735,4bf58dd8d48988d129951735';
+                        } else if (hrs > 0 && hrs < 3) {
+                            id = '4bf58dd8d48988d16e941735,4bf58dd8d48988d1bc941735,4bf58dd8d48988d1d0941735,4d4b7105d754a06376d81259,4d954b0ea243a5684a65b473,4bf58dd8d48988d10f951735,4bf58dd8d48988d1f0941735,4bf58dd8d48988d1fa931735,4bf58dd8d48988d130951735,4bf58dd8d48988d129951735';
+                        } else if (hrs > 3 && hrs < 6) {
+                            id = '4bf58dd8d48988d179941735,4bf58dd8d48988d16a941735,4bf58dd8d48988d143941735,4bf58dd8d48988d1e0931735';
+                        }
+                    }
+                    var url = 'https://api.foursquare.com/v2/venues/search?ll=' + currLat + ',' + currLon + '&categoryId=' + id + '&radius=' + radius + '&intent=browse&client_id=' + clientId + '&client_secret=' + clientSec + '&v=21030621&limit=50';
+                    //console.log(url);
+                    //console.log("day:"+day);
+                    //console.log("id:"+id);
+                    unique_random_numbers.length = 0;
+                    jQuery.get(url, function (r) {
+                    //console.log("Test");
+
+                    getrandomnumber(7, r.response.venues.length);
+                        //console.log(r.response.venues[0].name);
+                        var index = 0;
+                        var imgcat = 0;
+                        var imgsubcat = 0;
+                        var imgsubsubcat = -1;
+                        var duplicatefound = 0;
+                        for (var i = 0; i < unique_random_numbers.length; i++) {
+                            index = unique_random_numbers[i];
+                            duplicatefound = 0;
+
+                            for(x=0;x<jk;x++){
+                                if(r.response.venues[index].id == jsonObject[x].id){
+                                    duplicatefound = 1;
+                                    break;
+                                }
+                            }
+                            //console.log(index);
+                            //image name
+                            
+                            //console.log(duplicateno);
+                            //console.log(jsonObject);
+                            if(!duplicatefound){
+                            for (j = 0; j < category.response.categories.length; j++) {
+
+                                for (m = 0; m < category.response.categories[j].categories.length; m++) {
+                                    
+                                    if (category.response.categories[j].categories[m].id == r.response.venues[index].categories[0].id) {
+                                        imgcat = j;
+                                        imgsubcat = i;
+                                        imgsubsubcat = -1;
+                                        //console.log(imgcat+','+imgsubcat+','+imgsubsubcat);
+                                        break;
+                                    }
+                                    for (k = 0; k < category.response.categories[j].categories[m].categories.length; k++) {
+                                        if (category.response.categories[j].categories[m].categories[k].id == r.response.venues[index].categories[0].id) {
+                                            imgcat = j;
+                                            imgsubcat = m;
+                                            imgsubsubcat = k;
+                                            //console.log(imgcat+','+imgsubcat+','+imgsubsubcat);
+                                            break;
+                                        }
+
+                                    }
+                                }
+
+                            }
+
+                            if (imgsubsubcat == -1) {
+                                var imgicon = 'img/category/' + imgcat + '.' + imgsubcat + '.png';
+                            } else {
+                                var imgicon = 'img/category/' + imgcat + '.' + imgsubcat + '.' + imgsubsubcat + '.png';
+                            }
+                            //console.log(imgicon);
+
+                            //
+                            var obj = new Object();
+                            var poidrawables = new Array();
+                            var name = r.response.venues[index].name;
+                            //console.log(name);
+                            if (name.length < 18) {
+                                for (l = name.length; l < 18; l++) {
+                                    name = name + ' ';
+                                }
+                            }
+                            if (name.length > 18) {
+                                var cropname = name.substring(0, 18) + "..";
+                            } else {
+                                var cropname = name;
+                            }
+                            var poiImage;
+                            poiImage = markerimg;
+                            ///Changing Y Offsets randomly
+                            var rand = Math.floor(Math.random() * 5) + 1;
+
+                            var yoff;
+                            if (rand == 0) {
+                                yoff = -2;
+                            } else if (rand == 1) {
+                                yoff = 2;
+                            } else if (rand == 2) {
+                                yoff = 3;
+                            } else if (rand == 3) {
+                                yoff = -3
+                            } else {
+                                yoff = 0;
+                            }
+
+                            ///
+
+                            var img = new AR.ImageDrawable(poiImage, 3.0, {
+                                zOrder: 1,
+                                offsetX: 0.8,
+                                offsetY: yoff,
+                                triggers: {
+                                    onClick: createClickTrigger(jk)
+                                }
+                            });
+
+
+                            var label = new AR.Label(cropname, 0.65, {
+                                zOrder: 2,
+                                offsetY: 0.6 + yoff,
+                                offsetX: -3.5,
+                                triggers: {
+                                    onClick: createClickTrigger(jk)
+                                },
+                                horizontalAnchor: AR.CONST.HORIZONTAL_ANCHOR.LEFT,
+                                style: {
+                                    fontStyle: AR.CONST.FONT_STYLE.BOLD,
+                                    textColor: '#FFFFFF',
+                                    backgroundColor: '#FFFFFF00'
+                                }
+                            });
+
+                            obj.arLabel = label;
+                            var lat = r.response.venues[index].location.lat;
+                            var lon = r.response.venues[index].location.lng;
+                            var geoLoc = new AR.GeoLocation(lat, lon);
+                            var currentloc = new AR.GeoLocation(currLat, currLon);
+                            var distance = currentloc.distanceTo(geoLoc);
+                            obj.distance = distance;
+                            if(localStorage.units =="km"){
+                                if (distance > 1000) {
+                                    distance = distance / 1000;
+                                    distance = Math.round(distance, 3);
+                                    var distancetxt = distance + 'km';
+                                } else {
+                                    distance = Math.round(distance, 1);
+                                    var distancetxt = distance + 'm';
+
+                                }
+                            }else{
+                                distance = distance / 1609;
+                                console.log(distance);
+                                distance = Math.round(distance*100)/100;
+                                distancetxt = distance + ' miles';
+                            }
+
+                            var distancelabel = new AR.Label(distancetxt, 0.65, {
+                                zOrder: 2,
+                                offsetY: -0.4 + yoff,
+                                offsetX: -3.5,
+                                horizontalAnchor: AR.CONST.HORIZONTAL_ANCHOR.LEFT,
+                                style: {
+                                    fontStyle: AR.CONST.FONT_STYLE.BOLD,
+                                    textColor: '#00FFFF',
+                                    backgroundColor: '#FFFFFF00'
+                                }
+                            });
+                            obj.distancelabel = distancelabel;
+
+                            var icon = new AR.ImageResource(imgicon, {
+                                onError: errorLoadingImage
+                            });
+
+                            var iconimg = new AR.ImageDrawable(icon, 1.5, {
+                                zOrder: 4,
+                                offsetX: 5.0,
+                                offsetY: 0.2 + yoff,
+                                triggers: {
+                                    onClick: createClickTrigger(jk)
+                                },
+                                horizontalAnchor: AR.CONST.HORIZONTAL_ANCHOR.RIGHT
+
+                            });
+
+
+                            obj.animation = createOnClickAnimation(img);
+                            obj.img = img;
+                            obj.iconimg = iconimg;
+                            poidrawables.push(label);
+                            poidrawables.push(img);
+                            poidrawables.push(distancelabel);
+                            poidrawables.push(iconimg);
+                            obj.poiObj = new AR.GeoObject(geoLoc, {
+                                drawables: {
+                                    cam: poidrawables,
+                                    radar: radarCircle
+                                }
+                            });
+
+                            obj.name = r.response.venues[index].name;
+                            obj.id = r.response.venues[index].id;
+                            obj.lat = lat;
+                            obj.lon = lon;
+
+                            obj.index = i;
+                            obj.fav = 0;
+                            var rand = Math.random() * 3 + 1;
+                            rand = Math.floor(rand) - 1;
+                            obj.traffic = rand;
+
+                            jsonObject[jk] = obj;
+                            jk++;
+                            //console.log(jk);
+                            //console.log("From SK");
+                            placeloaded++;
+                            var percent = (placeloaded / 25);
+                            var width = percent * 720;
+                            $("#progressbar").css({
+                                "width": width
+                            });
+
+
+                            
+
+                        }
+                    }//closing the if of duplicate
+                        //console.log(jsonObject);
+                        //console.log("test"); 
+                        document.getElementById("notificationcenter").style.visibility = "hidden";
+                        everythingloaded = 1;
+                    }, "jsonp");
+
+
+                    //////END OF CONTEXTUAL POIS
+                    //document.getElementById("loadingimg").style.visibility="hidden";
+
+             
+
+            }
+            // Called if loading of the image fails.
+
+            function errorLoadingImage() {
+                // set error message on HUD
+                //document.getElementById("statusElement").innerHTML = "Unable to load image!";
+            }
+
+
+            // hide bubble and reset the selected poi if nothing was hit by a display click
+            AR.context.onScreenClick = function () {
+                // hide the bubble
+                //document.getElementById("footer").style.display = 'none';
+                document.getElementById("editbar").style.visibility = "hidden";
+                document.getElementById("notificationcenter").style.visibility = "hidden";
+                if (everythingloaded) {
+                    document.getElementById("timetext").innerHTML = "Loading..";
+                    document.getElementById("trafficicon").src = "img/trafficicon.png";
+                    document.getElementById("editbar").style.visibility = "hidden";
+                }
+                // and reset the current selected poi
+                if (selectedObject != null) {
+                    // reset the property animation
+                    selectedObject.animation.stop();
+
+                    selectedObject.arLabel.style.textColor = '#FFFFFF';
+                    selectedObject.img.scaling = 1.0;
+                    selectedObject.poiObj.renderingOrder = 0;
+                    selectedObject = null;
+                } else {
+                    if (radiusscreen == 0) {
+                        document.getElementById("notificationcenter").style.visibility = "hidden";
+                        document.getElementById("radiusbar").style.visibility = "visible";
+                        var radiusdis = localStorage.defaultsidekick;
+                        if(localStorage.units=="km")
+                            document.getElementById("radiustext").innerHTML = radiusdis+'km';
+                        else
+                            document.getElementById("radiustext").innerHTML = radiusdis+'mi';
+
+                        radiusscreen = 1;
+                    } else if (radiusscreen == 1) {
+                        document.getElementById("notificationcenter").style.visibility = "hidden";
+                        document.getElementById("radiusbar").style.visibility = "hidden";
+                        radiusscreen = 0;
+                    }
+                }
+            }
+
+            function destroyobject(id) {
+                if (selectedObject) {
+                    selectedObject.animation.stop();
+                    selectedObject.arLabel.style.textColor = '#FFFFFF';
+                    selectedObject.img.scaling = 1.0;
+                    selectedObject.poiObj.renderingOrder = 0;
+                }
+                var isdeleted = 0;
+                for (i = 0; i < deletedObjects.length; i++) {
+                    if (deletedObjects[i] == id) {
+                        isdeleted = 1;
+                    }
+                }
+                if (isdeleted == 0) {
+                    jsonObject[id].poiObj.destroy();
+                    jsonObject[id].arLabel.destroy();
+                    jsonObject[id].img.destroy();
+                    //jsonObject[id].iconimg.destroy();
+                    jsonObject[id].distancelabel.destroy();
+                    selectedObject = null;
+                    deletedObjects[deletedindex] = id;
+                    deletedindex++;
+                    //console.log("Object Deleted Successfully");
+                    //console.log(deletedObjects);
+                }
+
+
+            }
+
+            function test() {
+
+            }
+
+            function getrandomnumber(limit, upper_bound) {
+                var amount = 3,
+                    lower_bound = 0,
+                    upper_bound = upper_bound;
+
+
+
+                if (amount > limit) limit = amount; //Infinite loop if you want more unique
+                //Natural numbers than existemt in a
+                // given range
+                while (unique_random_numbers.length < limit) {
+                    var random_number = Math.round(Math.random() * (upper_bound - lower_bound) + lower_bound);
+                    if (unique_random_numbers.indexOf(random_number) == -1) {
+                        // Yay! new random number
+                        unique_random_numbers.push(random_number);
+                    }
+                }
+                //console.log(unique_random_numbers);
+
+            }
+        </script>
+        
+        
+    </body></html>

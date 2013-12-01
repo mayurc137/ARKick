@@ -1,0 +1,195 @@
+<!DOCTYPE html >
+<html><head>
+    
+    <title>ARKicK</title>
+    
+    <!-- Include the ARchitect library -->
+    <script src="architect://architect.js"></script>
+  
+    <link rel="stylesheet" href="lib/BlackBerry-JQM-all.css" />
+    <script src="lib/BlackBerry-JQM-all.js"></script>
+    <script type="text/javascript" src="lib/app.js"></script>
+       <script type="application/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+      <style>
+      #mapdisplay{
+        width:100%;
+        height:360px;
+      }
+      #rating{
+        position:absolute;
+        top:265px;
+        left:55px;
+        font-weight: bold;
+        font-size: 45px;
+        z-index: 110;
+      }
+      </style>
+        
+</head>
+    
+    <body>
+        <div id="index" data-role="page" data-theme="a">
+          <div data-role="header" data-theme="a">
+        <a onClick="backclicked()" data-role="button">Back</a>
+        <h1></h1>
+
+      </div><!-- /header -->
+        <div data-role="content">
+          <div data-role="gridview">
+            <div data-role="row">
+              <div ><img style="width:200px;height:250px;" id="img1"src="img/default.jpg" alt="" /></div>
+              <div ><img  style="width:200px;height:250px;"id="img2"src="img/default.jpg" alt="" /></div>
+              <div ><img style="width:200px;height:250px;" id="img3"src="img/default.jpg" alt="" /></div>
+            </div>
+          </div>
+            <hr class="BB10group" data-theme="a">
+           <div id="headertitle" style="position:realtive;"> 
+           <a style="z-index:100;" data-role="button" data-iconpos="notext" class="ui-disabled">7.8</a>
+            <h2 id="name" style="position:absolute; top:280px;left:170px;">Name</h2>
+            
+               <h6 id="address" style="position:relative;left:50px;">Address</h6>
+               </div>
+              <div data-role="controlgroup" data-type="horizontal">
+              <a  id="phone" onClick="phoneclicked()" data-role="button" >Call</a>
+              <a  id="menu"  onClick="moreclicked()" data-role="button" ><img width="320" style="position:absolute; left:-40px; top:-10px; "src="img/poweredbyfs.png"/></img></a>
+             
+              <!--a href="#" data-role="button" >Directions</a-->
+              </div>
+             <p id="rating"></p>
+            <hr class="gradient">
+            <div id="mapdisplay" data-role="footer">
+              <div id="map_canvas" style="height:100%; width:100%;"></div>
+            </div>
+            </div>
+       
+                  
+        </div>
+       </div>      
+        </div>
+               
+        <script type="text/javascript">
+          console.log(localStorage.selectedinfourl);
+          function phoneclicked(){
+              //alert(phone);
+              tele = 'tel:'+phone;
+              //alert(tele);
+              //location.href="tele";
+
+              if(phone){
+                document.getElementById("phone").innerHTML=phone;
+              }else{
+                document.getElementById("phone").innerHTML = 'unavailable';
+              }
+          }
+          function moreclicked(){
+            location.href = selectedinfourl;
+
+          }
+          function backclicked(){
+            location.href="browser.html";
+          }     
+          var id=localStorage.selectedinfoid;
+          var clientId = '3JLCFT4CFRGATLFWPOTOCKA41HPLBZWCNBZF21MP5Q4E3AY2';
+          var clientSec = 'HT50OBCWT5D2HURLEFR0EROAX0DCCICFPJ0FVB4H0I5RPXHT';
+          var phone;
+          var selectedinfourl = localStorage.selectedinfourl + '?ref=' + clientId;
+          console.log(selectedinfourl);
+          url='https://api.foursquare.com/v2/venues/'+id+'?client_id='+clientId+'&client_secret='+clientSec+'&v=21030621';
+          console.log(url);
+          jQuery.get(url,function(r){
+              
+              phone = r.response.venue.contact.formattedPhone;
+              var name = r.response.venue.name;
+              var address = r.response.venue.location.address;
+              var city = r.response.venue.location.city;
+              var state = r.response.venue.location.state;
+              var country = r.response.venue.location.country;
+              var rating = r.response.venue.rating;
+            if (r.response.venue.photos.groups[0] === undefined) {
+
+              }else{
+                  var photos = r.response.venue.photos.groups[0].items;    
+                    if(photos.length == 0){
+
+                    }else if(photos.length ==1){
+                        imgurl = photos[0].prefix+'width'+photos[0].width+photos[0].suffix;
+                        document.getElementById("img1").src=imgurl;
+                        //alert(document.getElementById("img1"));
+                    }else if(photos.length ==2){
+                        imgurl = photos[0].prefix+'width'+photos[0].width+photos[0].suffix;
+                      document.getElementById("img1").src=imgurl;
+                        imgurl = photos[1].prefix+'width'+photos[1].width+photos[1].suffix;
+                       document.getElementById("img2").src=imgurl;
+                    }
+                    else if(photos.length >=3){
+                        imgurl = photos[0].prefix+'width'+photos[0].width+photos[0].suffix;
+                      document.getElementById("img1").src=imgurl;
+                        imgurl = photos[1].prefix+'width'+photos[1].width+photos[1].suffix;
+                         document.getElementById("img2").src=imgurl;
+                        imgurl = photos[2].prefix+'width'+photos[2].width+photos[2].suffix; 
+                        document.getElementById("img3").src=imgurl;
+                        
+                    }
+              
+              
+              }
+              
+              var lat = r.response.venue.location.lat;
+              var lon = r.response.venue.location.lng;
+
+              if(name.length > 25){
+                  var cropname = name.substring(0, 25) + "..";
+              }
+              else{
+                  var cropname = name;
+              }
+              document.getElementById("name").innerHTML=cropname;
+              if(address){
+                address = address;
+              }
+              if(city){
+                address = address+', '+city;
+              }
+              if(state){
+                address = address+', '+state;
+              }
+              if(country){
+                address = address+', '+country;
+              }
+              //alert(address);
+              document.getElementById("address").innerHTML=address;
+
+              //document.getElementById("citystate").innerHTML=city+', '+state;
+              //document.getElementById("country").innerHTML=country;
+              //document.getElementById("phonenum").innerHTML=phone;
+              if(rating){
+                 rating = Math.round(rating*10)/10;
+                 document.getElementById("rating").innerHTML=rating;
+              }
+             
+              ///showing map
+              var latlng = new google.maps.LatLng(lat,lon);
+
+              var options = {  
+                  zoom: 16,  
+                  center: latlng,  
+                  mapTypeId: google.maps.MapTypeId.ROADMAP,
+              };
+              var map = new google.maps.Map(document.getElementById('map_canvas'), options);
+
+              marker1 = new google.maps.Marker({  
+              position: new google.maps.LatLng(lat,lon),
+              map: map
+              }); 
+              ////       
+              
+          });
+
+           //document.getElementById("phone").innerHTML=phone;     
+               
+        </script>
+        
+        
+    </body>
+        
+    </html>

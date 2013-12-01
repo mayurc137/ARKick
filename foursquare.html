@@ -1,0 +1,49 @@
+<html><head>
+    
+    <title>ARKicK</title>
+    
+    <!-- Include the ARchitect library -->
+    <script src="architect://architect.js"></script>
+  
+    <link rel="stylesheet" href="lib/BlackBerry-JQM-all-1.0.0.css" />
+    <script src="lib/BlackBerry-JQM-all-1.0.0.js"></script>
+    <script type="text/javascript" src="lib/app.js"></script>
+    </style>
+        
+</head>
+    
+    <body>
+        <div id="index" data-role="page" data-theme="a">
+          <div data-role="header" data-theme="a">
+        <a onClick="backclicked()" data-role="button">Back</a>
+        <h1></h1>
+
+      </div><!-- /header -->
+        <div data-role="content">
+       <iframe src="https://foursquare.com/v/foursquare-hq/4ab7e57cf964a5205f7b20e3" width="960" height="800">
+        <p>Your browser does not support iframes.</p>
+        </iframe>
+        </div>
+       
+                  
+        </div>
+       </div>      
+        </div>
+               
+        <script type="text/javascript">
+          console.log(localStorage.selectedinfourl);
+         
+          function backclicked(){
+            location.href="browser.html";
+          }     
+          var id=localStorage.selectedinfoid;
+          var url = localStorage.selectedinfourl
+          var clientId = '3JLCFT4CFRGATLFWPOTOCKA41HPLBZWCNBZF21MP5Q4E3AY2';
+          var clientSec = 'HT50OBCWT5D2HURLEFR0EROAX0DCCICFPJ0FVB4H0I5RPXHT';
+                       
+        </script>
+        
+        
+    </body>
+        
+    </html>

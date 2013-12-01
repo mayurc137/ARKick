@@ -1,0 +1,35 @@
+<!DOCTYPE html >
+<html><head>
+    
+    <title>ARKicK</title>
+    
+    <!-- Include the ARchitect library -->
+    <script src="architect://architect.js"></script>
+  
+    <!--script type="text/javascript" src="js/jquery.js"></script-->
+      
+        
+</head>
+    
+    <body onload="showlocation()">
+        <div style="color:white;">latitude:<span id="lat">0.00</span></div>
+        <div style="color:white;">longitude:<span id="lng">0.00</span></div>
+        <a href="geo.html"><button type="button">Back</button></a>
+       
+
+               
+        <script>
+        
+            
+                //user current locations
+                
+                function showlocation(){
+                    document.getElementById("lat").innerHTML=localStorage.lat;
+                    document.getElementById("lng").innerHTML=localStorage.lng;
+                }
+
+               
+        </script>
+        
+        
+    </body></html>

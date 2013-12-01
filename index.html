@@ -1,0 +1,162 @@
+<!DOCTYPE html >
+<html><head>
+    
+    <title>ARKicK</title>
+    
+    <!-- Include the ARchitect library -->
+    <script src="js/ade.js"></script>
+    <script src="architect://architect.js"></script>
+  
+    <link rel="stylesheet" href="libtrans/BlackBerry-JQM-all.css" />
+    <script src="libtrans/BlackBerry-JQM-all.js"></script>
+    <script type="text/javascript" src="libtrans/app.js"></script>
+      
+        
+</head>
+    
+    <body>
+        <div id="index" data-role="page" style="background:none;">
+        <div data-role="content">
+        <img src="img/arkick.png" style="position:absolute; width:60%; left:20%; top:256px;"></img>
+        
+        <img id="loc" src="img/marker1.png" style="position:absolute; width:12%; left:13%; top:909px;"></img>
+        <img id="weather" src="img/cloud.png" style="position:absolute; width:18%; left:30%; top:883px;"></img>
+        <img id="social" src="img/social.png" style="position:absolute; width:12%; right:33%; top:896px;"></img>
+        <img id="context" src="img/glass.png" style="position:absolute; width:18%; right:10%; top:883px;"></img>
+
+        <div id="locload" style="position:absolute; left:20%; top:960px;" data-role="bb-activity-indicator" data-size="small" data-theme="c"></div>
+        <div id="weatherload" style="position:absolute; left:41%; top:960px;" data-role="bb-activity-indicator" data-size="small" data-theme="c"></div>
+        <div id="socialload" style="position:absolute; right:31%; top:960px" data-role="bb-activity-indicator" data-size="small" data-theme="c"></div>
+        <div id="contextload" style="position:absolute; right:10%; top:960px;" data-role="bb-activity-indicator" data-size="small" data-theme="c"></div>
+
+        <img id="locimg" src="img/cross.png" style="position:absolute; width:6%; left:20%; top:960px; visibility:hidden;"></img>
+        <img id="weatherimg" src="img/cross.png" style="position:absolute; width:6%; left:41%; top:960px; visibility:hidden;"></img>
+        <img id="socialimg" src="img/cross.png" style="position:absolute; width:6%; right:31%; top:960px; visibility:hidden;"></img>
+        <img id="contextimg" src="img/cross.png" style="position:absolute; width:6%; right:10%; top:960px; visibility:hidden;"></img>
+        <div id="layer" style="position:absolute; left:0px; top:0px; height:100%; width:100%; background:rgba(0,0,0,0.3);"> 
+          <img src="img/arrowdown.png" style="position:absolute;top:20px;left:40px;width:100px;"></img>
+           <img src="img/arrowdown.png" style="position:absolute;top:1000px;left:80px;width:100px;"></img>
+            <img src="img/arrowdown.png" style="position:absolute;top:1000px;right:80px;width:100px;"></img>
+            <p style="position:absolute; left:150px; top:20px;color:white; font-size:30px;">SWIP DOWN TO ACCESS THE MENU</p>
+             <p style="position:absolute; left:210px; top:990px;color:white; font-size:40px;">SELECT THE MODE</p>
+        </div>
+        </div>      
+        </div>
+               
+        <script type="text/javascript">
+               
+                //user current locations
+                var currLat = 1;
+                var currLon = 1;
+                var currAlt = 1 ;
+                var currAcc = 1;
+                localStorage.lat = 1;
+                localStorage.lng = 1;
+                locationloaded = 0;
+                weatherloaded = 0;
+                
+                if(!localStorage.layer){
+                    localStorage.layer = 0;
+                }
+                localStorage.layer++;
+                if(localStorage.layer>3){
+                  //alert("inside");
+                  document.getElementById("layer").style.visibility="hidden";
+
+                }
+
+                if(!localStorage.alreadyloaded){
+                  
+                localStorage.units = "km";
+                localStorage.defaultbrowser = 5;
+                localStorage.defaultsidekick = 9;
+                }
+                localStorage.alreadyloaded = 1;
+                document.getElementById("layer").onmousedown=function(){
+                  document.getElementById("layer").style.visibility="hidden";
+                }
+                document.getElementById("layer").ontouchstart=function(){
+                  document.getElementById("layer").style.visibility="hidden";
+                }
+
+                AR.context.destroyAll();
+                AR.context.onLocationChanged = function(lat, lon, alt, acc) {
+                   currLat = lat;
+                   currLon = lon;
+                   currAlt = alt;
+                   currAcc = acc;
+                   localStorage.lat = currLat;
+                   localStorage.lng = currLon;
+                   localStorage.selcat = 7;
+                   localStorage.selsubcat = 3;
+                   localStorage.selsubsubcat = -1;
+                   locationloaded = 1;
+                  document.getElementById("locload").style.visibility="hidden";
+                  document.getElementById("locimg").style.visibility="visible";
+                  document.getElementById("locimg").src="img/tick.png";
+                  
+
+                  uri='http://api.openweathermap.org/data/2.5/weather?lat='+currLat+'&lon='+currLon+'&cnt=1&APPID=2385a4ba2769df3c1750f3123dfd1105&units=metric';
+                  console.log(uri); 
+                  jQuery.get(uri,function(r){
+                    
+                    localStorage.placename = r.name;
+                    localStorage.placecountry = r.sys.country;
+                    localStorage.temp = r.main.temp;
+                    
+                    cond = r.weather[0].id;
+                    code = cond/100;
+                    code = Math.floor(code);
+                    localStorage.weathercode = code;
+                    console.log(localStorage.weathercode);
+                    console.log(localStorage.temp);
+                    weatherloaded =1;
+                    document.getElementById("weatherload").style.visibility="hidden";
+                    document.getElementById("weatherimg").style.visibility="visible";
+                    document.getElementById("weatherimg").src="img/tick.png";
+                  },"jsonp");
+
+                }
+                var t=setTimeout(function(){
+                  document.getElementById("socialload").style.visibility="hidden";
+                  document.getElementById("socialimg").style.visibility="visible";
+                  document.getElementById("socialimg").src="img/tick.png";
+                },3000);
+                var t=setTimeout(function(){
+                  document.getElementById("contextload").style.visibility="hidden";
+                  document.getElementById("contextimg").style.visibility="visible";
+                  document.getElementById("contextimg").src="img/tick.png";
+                },5000);
+
+                var t=setTimeout(function(){
+                  if(!locationloaded){
+                    document.getElementById("locload").style.visibility="hidden";
+                    document.getElementById("locimg").style.visibility="visible";
+                    document.getElementById("locimg").src="img/cross.png";
+                  }
+                  if(!weatherloaded){
+                    document.getElementById("weatherload").style.visibility="hidden";
+                    document.getElementById("weatherimg").style.visibility="visible";
+                    document.getElementById("weatherimg").src="img/cross.png";
+                  }
+                },20000);
+                 var t=setTimeout(function(){
+                  document.getElementById("layer").style.visibility="hidden";
+                  localStorage.openedalready=1;
+                },10000);
+
+               
+              var d = new Date();
+              localStorage.hrs = d.getHours();
+              console.log(localStorage.hrs);
+              
+              
+              
+             
+               
+        </script>
+        
+        
+    </body>
+        
+    </html>

@@ -1,0 +1,96 @@
+
+<!DOCTYPE HTML>
+
+<html>
+    <head>
+		<meta charset="utf-8">
+        
+	
+		<script src="architect://architect.js"></script>
+		<link rel="stylesheet" href="lib/BlackBerry-JQM-all.css" />
+		<script src="lib/BlackBerry-JQM-all.js"></script>
+		<script type="text/javascript" src="lib/app.js"></script>
+		<script type="text/javascript" src="js/category.js"></script>
+       
+        <style>
+         	.thumbnail{
+         		position:relative;
+ 				width:80px;
+ 				left:10px;
+ 				top:15px;
+         	}
+         	#main{
+         		width: 100%;
+         		height: 100%;
+         		overflow: scroll;
+         	}
+         	
+         </style>      
+	</head>
+	<body style="overflow:scroll;" >
+		<div id="main">
+		<div id="page1" data-role="page" data-theme="a">
+			<!-- This is how you set up your tab overflow menu (left side panel) -->
+			
+
+			<div data-role="header" data-theme="a">
+				<a onClick="backclicked()" data-role="button">Back</a>
+				<h1>Sub Category</h1>
+
+			</div><!-- /header -->
+			<div data-role="content">
+				<div id="wordlist">
+                <ul data-filter="true" data-role="listview" data-divider-theme="a" id="wordlistul" >
+    		
+				</ul>
+			</div>
+				<!-- Put your page content here -->
+			</div><!-- /content -->
+		</div>	
+		</div><!-- /page -->
+
+		<script>
+		//AR.context.destroyAll();
+		function backclicked(){
+			location.href="selcat.html";
+		}
+		
+       			var selcat = localStorage.selcat;
+				//console.log(category);	 		
+				for(var i=0; i<category.response.categories[selcat].categories.length;i++){
+	               var name = category.response.categories[selcat].categories[i].name;
+	              $("#wordlist ul").append('<li><a onClick="click'+selcat+'_'+i+'()"><img src="img/category/'+selcat+'.'+i+'.png" alt="list thumbnail" class="thumbnail"><h1 style="position:relative;top:25px;">'+name+'</h1><p style="visibility:hidden;"></p></a></li>');
+			      console.log('function click'+selcat+'_'+i+'(){localStorage.selcat='+selcat+';localStorage.selsubcat='+i+';selsubsubcat=-1;location.href="browser.html;"}');
+   				}
+
+		
+				
+   
+        	$("#wordlist li").click(function () {
+          // this is the dom element clicked
+	        index = $("#wordlist li").index(this);
+	        selsubcat = index;
+	        localStorage.selsubcat = index;
+	        
+	       	if(category.response.categories[selcat].categories[selsubcat].categories.length == 0){
+		        localStorage.selsubsubcat = -1;
+		        location.href="browser.html";
+		    }else{
+		    	location.href="selsubsubcat.html";
+		    }
+	      
+        });
+
+       var name = "Mayur";
+       if(name.length<18){
+       	for(l=name.length;l<18;l++){
+       		name = name +' ';
+       	}
+       }
+       console.log(name.length);
+       console.log(name);
+        </script>
+	</body>
+</html>
+
+
